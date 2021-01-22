@@ -72,16 +72,16 @@ public class ShipServiceImpl implements ShipService {
                     return null;
                 if (dateAfterMs == null) {
                     return criteriaBuilder.lessThanOrEqualTo(root.get("prodDate"),
-                            normalizeDateFromFrontend(dateBeforeMs));
+                            new Date(dateBeforeMs));
                 }
                 if (dateBeforeMs == null) {
                     return criteriaBuilder.greaterThanOrEqualTo(root.get("prodDate"),
-                            normalizeDateFromFrontend(dateAfterMs));
+                            new Date(dateAfterMs));
                 }
 
                 return criteriaBuilder.between(root.get("prodDate"),
-                        normalizeDateFromFrontend(dateAfterMs),
-                        normalizeDateFromFrontend(dateBeforeMs));
+                        new Date(dateAfterMs),
+                        new Date(dateBeforeMs));
             }
         };
     }
