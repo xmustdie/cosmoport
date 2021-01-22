@@ -67,32 +67,21 @@ public class ShipServiceImpl implements ShipService {
         return new Specification<Ship>() {
             @Override
             public Predicate toPredicate(Root<Ship> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
-                Calendar calendar = Calendar.getInstance();
+
                 if (dateAfterMs == null && dateBeforeMs == null)
                     return null;
                 if (dateAfterMs == null) {
-                    Date beforeDate = new Date(dateBeforeMs);
-                    calendar.setTime(beforeDate);
-                    calendar.set(calendar.get(Calendar.YEAR),Calendar.DECEMBER, 31, 23, 59, 59);
-                    beforeDate = calendar.getTime();
-                    return criteriaBuilder.lessThanOrEqualTo(root.get("prodDate"), beforeDate);
+                    return criteriaBuilder.lessThanOrEqualTo(root.get("prodDate"),
+                            normalizeDateFromFrontend(dateBeforeMs));
                 }
                 if (dateBeforeMs == null) {
-                    Date afterDate = new Date(dateAfterMs);
-                    calendar.setTime(afterDate);
-                    calendar.set(calendar.get(Calendar.YEAR),Calendar.JANUARY, 1, 0, 0, 0);
-                    afterDate = calendar.getTime();
-                    return criteriaBuilder.greaterThanOrEqualTo(root.get("prodDate"), afterDate);
+                    return criteriaBuilder.greaterThanOrEqualTo(root.get("prodDate"),
+                            normalizeDateFromFrontend(dateAfterMs));
                 }
-                Date beforeDate = new Date(dateBeforeMs);
-                calendar.setTime(beforeDate);
-                calendar.set(calendar.get(Calendar.YEAR),Calendar.DECEMBER, 31, 23, 59, 59);
-                beforeDate = calendar.getTime();
-                Date afterDate = new Date(dateAfterMs);
-                calendar.setTime(afterDate);
-                calendar.set(calendar.get(Calendar.YEAR),Calendar.JANUARY, 1, 0, 0, 0);
-                afterDate = calendar.getTime();
-                return criteriaBuilder.between(root.get("prodDate"), afterDate, beforeDate);
+
+                return criteriaBuilder.between(root.get("prodDate"),
+                        normalizeDateFromFrontend(dateAfterMs),
+                        normalizeDateFromFrontend(dateBeforeMs));
             }
         };
     }
@@ -170,5 +159,12 @@ public class ShipServiceImpl implements ShipService {
         };
     }
 
+    private Date normalizeDateFromFrontend (Long unixDate) {
+        Calendar calendar = Calendar.getInstance();
+        Date date = new Date(unixDate);
+        calendar.setTime(date);
+        calendar.set(calendar.get(Calendar.YEAR),Calendar.JANUARY, 1, 0, 0, 0);
+        return calendar.getTime();
+    }
 
 }
